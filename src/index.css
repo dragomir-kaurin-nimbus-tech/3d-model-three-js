@@ -19,3 +19,123 @@ code {
 .scene-viewer:hover {
   background-color: red;
 }
+
+.container {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+/* Stil za 3D scene div */
+.scene-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Stil za bočne panelove */
+.panel {
+  position: absolute;
+  top: 1rem;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.panel-left {
+  left: 1rem;
+}
+
+.panel-right {
+  right: 1rem;
+  width: 16rem;
+}
+
+/* Stilovi za inpute i dugmadi */
+input[type="file"] {
+  display: block;
+  width: 100%;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  width: 100%;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Stil za checkbox */
+input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+/* Bookmarks lista */
+.bookmarks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bookmark-item {
+  margin-bottom: 0.5rem;
+}
+
+.bookmark-button {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .panel-right {
+    width: 14rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .panel {
+    width: 100%;
+    top: 1rem;
+    left: 0;
+    right: 0;
+    margin: 0;
+  }
+
+  .panel-left {
+    position: static;
+    width: 100%;
+  }
+
+  .panel-right {
+    width: 100%;
+    position: static;
+    margin-top: 1rem;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .bookmarks-list {
+    padding: 0;
+  }
+}

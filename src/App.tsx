@@ -21,6 +21,7 @@ export default function Component() {
   const [bookmarks, setBookmarks] = useState<
     { name: string; position: THREE.Vector3; target: THREE.Vector3 }[]
   >([]);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -71,16 +72,51 @@ export default function Component() {
     const gridHelper = new THREE.GridHelper(10, 10);
     scene.add(gridHelper);
 
+    // Raycaster for hover effect
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    const onMouseMove = (event: MouseEvent) => {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      if (modelRef.current) {
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObject(modelRef.current, true);
+        setIsHovered(intersects.length > 0);
+      }
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+
     // Animation
-    const animate = () => {
+    let lastTime = 0;
+    const animate = (time: number) => {
+      const deltaTime = time - lastTime;
+      lastTime = time;
+
       requestAnimationFrame(animate);
       controls.update();
+
+      if (modelRef.current) {
+        // Continuous rotation
+        modelRef.current.rotation.y += 0.0001 * deltaTime;
+
+        // Hover effect
+        const targetScale = isHovered ? 1.0001 : 1;
+        modelRef.current.scale.lerp(
+          new THREE.Vector3(targetScale, targetScale, targetScale),
+          0.01
+        );
+      }
+
       renderer.render(scene, camera);
     };
-    animate();
+    animate(0);
 
     // Cleanup
     return () => {
+      window.removeEventListener("mousemove", onMouseMove);
       renderer.dispose();
       mountRef.current?.removeChild(renderer.domElement);
     };
@@ -275,11 +311,11 @@ export default function Component() {
           <label style={{ display: "flex", alignItems: "center" }}>
             <input
               type="checkbox"
-              checked={isDayMode}
+              checked={!isDayMode}
               onChange={toggleLightingMode}
               style={{ marginRight: "0.5rem" }}
             />
-            {isDayMode ? "Day Mode" : "Night Mode"}
+            {"Night Mode"}
           </label>
         </div>
         <button
@@ -342,6 +378,3 @@ export default function Component() {
     </div>
   );
 }
-
-//pogledaj da li su senke bile pre ovoga
-// four

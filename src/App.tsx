@@ -72,6 +72,27 @@ export default function Component() {
     const gridHelper = new THREE.GridHelper(10, 10);
     scene.add(gridHelper);
 
+    // Resize handler
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      // Update camera aspect ratio and projection matrix
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+
+      // Resize renderer
+      renderer.setSize(width, height);
+
+      // Adjust model scale based on window size (optional)
+      if (modelRef.current) {
+        const scaleFactor = Math.min(width / 800, height / 600); // Adjust the divisor for sensitivity
+        modelRef.current.scale.set(scaleFactor, scaleFactor, scaleFactor);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
     // Raycaster for hover effect
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
@@ -106,7 +127,7 @@ export default function Component() {
         const targetScale = isHovered ? 1.0001 : 1;
         modelRef.current.scale.lerp(
           new THREE.Vector3(targetScale, targetScale, targetScale),
-          0.01
+          0.1
         );
       }
 
@@ -116,6 +137,7 @@ export default function Component() {
 
     // Cleanup
     return () => {
+      window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", onMouseMove);
       renderer.dispose();
       mountRef.current?.removeChild(renderer.domElement);
@@ -258,24 +280,13 @@ export default function Component() {
   }, []);
 
   return (
-    <div style={{ position: "relative", height: "100vh", width: "100%" }}>
+    <div className="container">
       <div
         ref={mountRef}
-        style={{ position: "absolute", inset: 0 }}
+        className="scene-container"
         aria-label="3D scene viewer"
       />
-      <div
-        style={{
-          position: "absolute",
-          top: "1rem",
-          left: "1rem",
-          zIndex: 10,
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
-          padding: "1rem",
-          borderRadius: "0.5rem",
-          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-        }}
-      >
+      <div className="panel panel-left">
         <div style={{ marginBottom: "1rem" }}>
           <label
             htmlFor="model-upload"
@@ -288,7 +299,6 @@ export default function Component() {
             type="file"
             accept=".obj"
             onChange={(e) => e.target.files && importModel(e.target.files[0])}
-            style={{ display: "block", width: "100%" }}
           />
         </div>
         <div style={{ marginBottom: "1rem" }}>
@@ -304,7 +314,6 @@ export default function Component() {
             accept="image/*"
             onChange={(e) => e.target.files && applyTexture(e.target.files[0])}
             disabled={!isModelLoaded}
-            style={{ display: "block", width: "100%" }}
           />
         </div>
         <div style={{ marginBottom: "1rem" }}>
@@ -318,33 +327,9 @@ export default function Component() {
             {"Night Mode"}
           </label>
         </div>
-        <button
-          onClick={saveCameraPosition}
-          style={{
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            padding: "0.5rem 1rem",
-            borderRadius: "0.25rem",
-            cursor: "pointer",
-          }}
-        >
-          Save Camera Position
-        </button>
+        <button onClick={saveCameraPosition}>Save Camera Position</button>
       </div>
-      <div
-        style={{
-          position: "absolute",
-          top: "1rem",
-          right: "1rem",
-          zIndex: 10,
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
-          padding: "1rem",
-          borderRadius: "0.5rem",
-          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-          width: "16rem",
-        }}
-      >
+      <div className="panel panel-right">
         <h3
           style={{
             fontSize: "1.125rem",
@@ -354,20 +339,12 @@ export default function Component() {
         >
           Bookmarks
         </h3>
-        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+        <ul className="bookmarks-list">
           {bookmarks.map((bookmark, index) => (
-            <li key={index} style={{ marginBottom: "0.5rem" }}>
+            <li key={index} className="bookmark-item">
               <button
                 onClick={() => loadBookmark(bookmark)}
-                style={{
-                  width: "100%",
-                  textAlign: "left",
-                  padding: "0.5rem",
-                  backgroundColor: "#f0f0f0",
-                  border: "1px solid #ccc",
-                  borderRadius: "0.25rem",
-                  cursor: "pointer",
-                }}
+                className="bookmark-button"
               >
                 {bookmark.name}
               </button>
